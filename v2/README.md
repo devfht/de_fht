@@ -59,12 +59,13 @@ Héberger le **dossier complet** (avec `assets/`) sur n'importe quel hébergeur 
 | Réglage | Où |
 |---|---|
 | **Mot de passe du backoffice** | `assets/js/admin.js`, constante `ADMIN_PASSWORD` (défaut : `fht2026`) |
-| **Formulaire de devis (Formspree)** | Backoffice → section *Commissions* → « Identifiant Formspree » |
+| **Formulaire de devis** | Automatique : envoie à l'email de la section *Identité* via FormSubmit (aucune inscription) |
 | **Liens Discord / Roblox / X** | Backoffice → section *Identité* |
 
-Pour le formulaire : créer un formulaire gratuit sur [formspree.io](https://formspree.io),
-récupérer l'identifiant (ex. `xayzabcd` dans l'URL du formulaire) et le coller dans le backoffice.
-Tant qu'il vaut `YOUR_FORM_ID`, le formulaire affiche une erreur au lieu d'envoyer.
+Le formulaire de devis utilise [FormSubmit](https://formsubmit.co) : aucune inscription.
+Les demandes partent vers l'email renseigné dans la section *Identité*. À la toute première
+demande, FormSubmit envoie un mail de confirmation à cette adresse — cliquer le lien une fois
+active l'envoi. Sans email renseigné, le formulaire affiche une erreur.
 
 ## Limites connues
 

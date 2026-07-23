@@ -54,8 +54,7 @@ window.SITE_CONTENT = {
   "commissions": {
     "heading": "Comment ça marche",
     "paragraphs": ["phrase 1", "phrase 2"],
-    "terms": ["point 1", "point 2", "point 3"],
-    "formspreeId": "YOUR_FORM_ID"
+    "terms": ["point 1", "point 2", "point 3"]
   },
   "footer": {
     "online": true,
@@ -69,7 +68,6 @@ CONTRAINTES :
 - "visits" peut rester vide ("") si le projet n'a pas de chiffre public.
 - Laisse "image" à "" et "images" à [] : les images s'ajoutent dans le backoffice, pas par l'IA.
 - "online" vaut true (disponible) ou false (indisponible).
-- Garde "formspreeId" tel quel si tu ne le connais pas.
 - N'invente pas de chiffres : utilise uniquement ceux que je te donne.
 
 MES INFOS (à compléter) :
@@ -87,7 +85,7 @@ MES INFOS (à compléter) :
     hero: { path: 'game.ReplicatedStorage.Fht', titleTop: 'Développeur', titleAccent: 'Roblox.', role: '', bio: '', ctaPrimary: 'Demander un devis', ctaSecondary: 'Voir les jeux' },
     social: { discord: '', roblox: '', email: '', x: '' },
     stats: [], games: [], clips: [],
-    commissions: { heading: 'Comment ça marche', paragraphs: [], terms: [], formspreeId: 'YOUR_FORM_ID' },
+    commissions: { heading: 'Comment ça marche', paragraphs: [], terms: [] },
     footer: { online: true, status: 'En ligne — dispo pour commissions' }
   };
 
@@ -108,7 +106,7 @@ MES INFOS (à compléter) :
     d.stats = d.stats || [];
     d.games = d.games || [];
     d.clips = d.clips || [];
-    d.commissions = Object.assign({ heading: '', paragraphs: [], terms: [], formspreeId: 'YOUR_FORM_ID' }, d.commissions || {});
+    d.commissions = Object.assign({ heading: '', paragraphs: [], terms: [] }, d.commissions || {});
     d.footer = Object.assign({ online: true, status: '' }, d.footer || {});
   }
 
@@ -394,8 +392,7 @@ MES INFOS (à compléter) :
       <div class="field"><label>Titre du bloc</label><input data-path="commissions.heading" value="${esc(c.heading)}"></div>
       <div class="field"><label>Paragraphes <span class="opt">(une ligne = un paragraphe)</span></label><textarea data-textlist="commissions.paragraphs" style="min-height:120px;">${esc((c.paragraphs || []).join('\n'))}</textarea></div>
       <div class="field"><label>Points listés <span class="opt">(une ligne = un point, précédé d'un ✓)</span></label><textarea data-textlist="commissions.terms" style="min-height:140px;">${esc((c.terms || []).join('\n'))}</textarea></div>
-      <div class="note">Le formulaire envoie les demandes via <b>Formspree</b> (gratuit). Crée un formulaire sur formspree.io, récupère ton identifiant (ex. <b>xayzabcd</b> dans l'URL) et colle-le ci-dessous.</div>
-      <div class="field mono"><label>Identifiant Formspree</label><input data-path="commissions.formspreeId" value="${esc(c.formspreeId)}" placeholder="YOUR_FORM_ID"></div>
+      <div class="note">Le formulaire de devis envoie les demandes à ton <b>email</b> (section Identité) via FormSubmit — aucune inscription. À la toute première demande reçue, clique le lien de confirmation dans le mail de FormSubmit ; ensuite tout arrive automatiquement dans ta boîte.</div>
     `;
   }
 

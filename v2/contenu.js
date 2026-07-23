@@ -238,8 +238,7 @@ window.SITE_CONTENT = {
       "Livraison en .rbxm prêt à insérer",
       "Retours et ajustements après livraison",
       "Contact direct sur Discord : de_fht"
-    ],
-    "formspreeId": "YOUR_FORM_ID"
+    ]
   },
   "footer": {
     "online": true,

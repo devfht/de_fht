@@ -11,7 +11,7 @@
     hero: { path: 'game.ReplicatedStorage.Fht', titleTop: 'Développeur', titleAccent: 'Roblox.', role: '', bio: '', ctaPrimary: 'Demander un devis', ctaSecondary: 'Voir les jeux' },
     social: { discord: '', roblox: '', email: '', x: '' },
     stats: [], games: [], clips: [],
-    commissions: { heading: '', paragraphs: [], terms: [], formspreeId: 'YOUR_FORM_ID' },
+    commissions: { heading: '', paragraphs: [], terms: [] },
     footer: { online: true, status: 'En ligne' }
   };
 
@@ -215,9 +215,9 @@
     revealEls.forEach(el => revObs.observe(el));
   }
 
-  /* ---------- FORM (Formspree) ---------- */
+  /* ---------- FORM (FormSubmit — sans inscription) ---------- */
   const form = $('devisForm'), formStatus = $('formStatus'), submitBtn = $('submitBtn');
-  const formspreeId = comm.formspreeId || 'YOUR_FORM_ID';
+  const contactEmail = (content.social && content.social.email) || '';
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -231,17 +231,25 @@
     formStatus.textContent = '';
     formStatus.className = 'form-status';
     try {
-      if (formspreeId === 'YOUR_FORM_ID') throw new Error('not-configured');
-      const data = {
-        name: $('name').value, contact: $('contact').value,
-        project: $('project').value, details: $('details').value
+      if (!contactEmail) throw new Error('not-configured');
+      const payload = {
+        name: $('name').value,
+        contact: $('contact').value,
+        project: $('project').value,
+        details: $('details').value,
+        _subject: 'Nouvelle demande de devis — ' + ($('name').value || 'site'),
+        _template: 'table',
+        _captcha: 'false'
       };
-      const res = await fetch('https://formspree.io/f/' + formspreeId, {
+      const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(contactEmail), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error('server');
+      let ok = res.ok;
+      // FormSubmit répond 200 même en cas d'échec logique : on lit success dans le JSON
+      try { const j = await res.json(); if (j && (j.success === false || j.success === 'false')) ok = false; } catch (_) {}
+      if (!ok) throw new Error('server');
       formStatus.textContent = 'Demande envoyée. Je te réponds vite.';
       formStatus.className = 'form-status success';
       form.reset();
