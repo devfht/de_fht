@@ -1,0 +1,122 @@
+/* ============================================================
+   theme.css — Design system partagé (site + backoffice)
+   Palette "Roblox Studio dark", typographie et tokens communs.
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Garantit que l'attribut `hidden` masque toujours l'élément,
+   même quand une classe lui donne un display (ex. .gate { display:flex }). */
+[hidden] { display: none !important; }
+
+:root {
+  /* Studio dark theme */
+  --void: #14161b;
+  --void-2: #0f1115;
+  --panel: #1b1e25;
+  --panel-2: #22262f;
+  --line: #2e333d;
+  --line-2: #3a4150;
+  --text: #d7dbe3;
+  --text-2: #9aa2b1;
+  --muted: #7e8695;
+  --sel: #5aa0f2;        /* Studio selection blue = accent unique */
+  --sel-dim: #2f6fcb;
+  --live: #57c06b;       /* status "en ligne" */
+  --warn: #e2231a;       /* Roblox red — erreurs uniquement */
+
+  /* Syntaxe — confinée au code */
+  --c-kw: #c678dd;
+  --c-str: #98c379;
+  --c-type: #e5c07b;
+  --c-fn: #5aa0f2;
+  --c-prop: #e06c75;
+  --c-com: #7f848e;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: clamp(2rem, 4vw, 3rem);
+  --text-hero: clamp(3.25rem, 9vw, 6.5rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  --max-width: 1180px;
+  --radius: 8px;
+  --radius-sm: 5px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--void);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--sel); text-decoration: none; transition: color 0.2s ease; }
+a:hover { color: var(--text); }
+
+::selection { background: rgba(90, 160, 242, 0.28); color: #fff; }
+
+:focus-visible {
+  outline: 2px solid var(--sel);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Instance icon — carré Studio (utilisé partout) */
+.ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+  color: var(--void);
+}
+.ico-script { background: var(--sel); }
+.ico-model  { background: #8b93a3; }
+.ico-folder { background: var(--c-str); }
+.ico-server { background: var(--c-prop); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

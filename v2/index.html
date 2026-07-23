@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fht — Builder &amp; Level Designer Roblox</title>
+  <meta name="description" content="Fht — builder et level designer sur Roblox. Maps, environnements immersifs, optimisation 3D et GUI.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+  <!-- PREVIEW BANNER (injecté en mode aperçu) -->
+  <div id="previewBanner"></div>
+
+  <!-- HEADER -->
+  <header>
+    <a class="brand" href="#top" aria-label="Accueil">
+      <span class="ico ico-model">▦</span><span id="brandName">Fht</span>
+    </a>
+    <nav class="top-nav" aria-label="Navigation principale">
+      <a href="#games">Builds</a>
+      <a href="#clips">Galerie</a>
+      <a href="#commissions">Commissions</a>
+    </nav>
+    <div class="socials" id="socials"></div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-intro reveal">
+          <div class="path" id="heroPath"></div>
+          <h1 id="heroTitle"></h1>
+          <p class="role" id="heroRole"></p>
+          <p class="bio" id="heroBio"></p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#commissions" id="ctaPrimary"></a>
+            <a class="btn btn-ghost" href="#games" id="ctaSecondary"></a>
+          </div>
+        </div>
+
+        <div class="blueprint" aria-hidden="true">
+          <div class="bp-bar">
+            <span class="ico ico-model">▦</span>
+            <span class="bp-file">Street_French.rbxm</span>
+            <span class="bp-view">ELEVATION</span>
+          </div>
+          <div class="bp-body">
+            <svg viewBox="0 0 460 300" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <pattern id="studs" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M20 0H0V20" fill="none" stroke="currentColor" stroke-width="0.5"/>
+                </pattern>
+              </defs>
+              <rect class="bp-grid" width="460" height="300" fill="url(#studs)"/>
+
+              <!-- Façade principale -->
+              <g class="bp-draw">
+                <rect class="bp-solid" x="80" y="80" width="200" height="160"/>
+                <rect class="bp-solid" x="280" y="130" width="110" height="110"/>
+                <!-- corniche -->
+                <rect class="bp-solid" x="72" y="70" width="216" height="12"/>
+                <rect class="bp-solid" x="274" y="122" width="122" height="10"/>
+                <!-- ouvertures -->
+                <rect class="bp-open" x="104" y="104" width="30" height="34"/>
+                <rect class="bp-open" x="152" y="104" width="30" height="34"/>
+                <rect class="bp-open" x="200" y="104" width="30" height="34"/>
+                <rect class="bp-open" x="104" y="160" width="30" height="34"/>
+                <rect class="bp-open" x="152" y="160" width="30" height="34"/>
+                <rect class="bp-open" x="304" y="154" width="26" height="30"/>
+                <rect class="bp-open" x="344" y="154" width="26" height="30"/>
+                <!-- porte -->
+                <rect class="bp-open" x="204" y="180" width="34" height="60"/>
+                <!-- sol -->
+                <line class="bp-ground" x1="40" y1="240" x2="430" y2="240"/>
+              </g>
+
+              <!-- Cotes -->
+              <g class="bp-dims">
+                <line x1="80" y1="262" x2="390" y2="262"/>
+                <line x1="80" y1="256" x2="80" y2="268"/>
+                <line x1="390" y1="256" x2="390" y2="268"/>
+                <text x="235" y="278" text-anchor="middle">62 studs</text>
+
+                <line x1="58" y1="70" x2="58" y2="240"/>
+                <line x1="52" y1="70" x2="64" y2="70"/>
+                <line x1="52" y1="240" x2="64" y2="240"/>
+                <text x="44" y="160" text-anchor="middle" transform="rotate(-90 44 160)">34 studs</text>
+              </g>
+            </svg>
+          </div>
+          <div class="bp-foot">
+            <span>parts <b>1 248</b></span>
+            <span>tris <b>18.4k</b></span>
+            <span>material <b>Concrete</b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROPERTIES STRIP -->
+      <div class="props reveal" id="stats">
+        <div class="props-head">
+          <span class="ico ico-model">▦</span><span id="propsTitle">Properties — Fht</span>
+        </div>
+        <div class="props-grid" id="propsGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAMES -->
+  <section class="section" id="games">
+    <div class="container">
+      <div class="sec-head reveal">
+        <div>
+          <div class="path"><span class="ico ico-model">▦</span>game<i>.</i><b>Workspace</b></div>
+          <h2 class="sec-title">Builds</h2>
+        </div>
+        <p class="sec-note">Maps, environnements et GUI —<br>rôle et portée par projet.</p>
+      </div>
+      <div class="games-grid" id="gamesGrid"></div>
+    </div>
+  </section>
+
+  <!-- CLIPS -->
+  <section class="section section-alt" id="clips">
+    <div class="container">
+      <div class="sec-head reveal">
+        <div>
+          <div class="path"><span class="ico ico-folder">▤</span>game<i>.</i>ReplicatedStorage<i>.</i><b>Renders</b></div>
+          <h2 class="sec-title">Galerie</h2>
+        </div>
+        <p class="sec-note">Vues détaillées des builds —<br>clique pour agrandir.</p>
+      </div>
+      <div class="clips-grid" id="clipsGrid"></div>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Aperçu image">
+    <button class="lb-close" id="lbClose">Fermer · Esc</button>
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Image précédente">‹</button>
+    <div class="lightbox-content">
+      <img id="lbImage" src="" alt="">
+    </div>
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Image suivante">›</button>
+    <div class="lb-counter" id="lbCounter"></div>
+  </div>
+
+  <!-- COMMISSIONS -->
+  <section class="section" id="commissions">
+    <div class="container">
+      <div class="sec-head reveal">
+        <div>
+          <div class="path"><span class="ico ico-server">≡</span>game<i>.</i><b>Players</b></div>
+          <h2 class="sec-title">Commissions</h2>
+        </div>
+        <p class="sec-note">Map, optimisation ou GUI —<br>dis-moi ce qu'il te faut.</p>
+      </div>
+      <div class="comm-grid">
+        <div class="terms reveal">
+          <h3 id="termsHeading"></h3>
+          <div id="termsParagraphs"></div>
+          <ul id="termsList"></ul>
+        </div>
+        <form class="devis reveal" id="devisForm">
+          <h3>Demander un devis</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Nom / Pseudo</label>
+              <input type="text" id="name" name="name" autocomplete="name" required>
+            </div>
+            <div class="form-group">
+              <label for="contact">Discord / Email</label>
+              <input type="text" id="contact" name="contact" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="project">Type de projet</label>
+            <select id="project" name="project">
+              <option value="map">Map / environnement</option>
+              <option value="gui">GUI / Interface</option>
+              <option value="optim">Optimisation 3D</option>
+              <option value="other">Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="details">Décris ton projet <span>— genre, features, délais, budget</span></label>
+            <textarea id="details" name="details" placeholder="Ex : map de ville RP, ~50 bâtiments, optimisée pour 40 joueurs, livraison souhaitée dans 4 semaines, budget ~..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" id="submitBtn">Envoyer la demande</button>
+          <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="status" id="footStatus"><span class="dot"></span><span id="footStatusText">En ligne</span></span>
+    <span id="footCopyright">© 2026 Fht · Roblox Developer</span>
+    <nav aria-label="Liens">
+      <a href="#top">↑ Haut</a>
+      <a class="foot-roblox" href="#" target="_blank" rel="noopener">Roblox</a>
+      <a class="foot-email" href="#">Email</a>
+    </nav>
+  </footer>
+
+  <script src="contenu.js"></script>
+  <script src="assets/js/site.js"></script>
+
+</body>
+</html>
