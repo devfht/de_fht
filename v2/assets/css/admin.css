@@ -7,6 +7,7 @@ body { line-height: 1.55; }
 
 .ico-gear { background: var(--text-2); }
 .ico-ai { background: var(--c-kw, #c678dd); }
+.ico-pub { background: var(--live); }
 
 textarea.ai-prompt {
   min-height: 150px; resize: vertical;

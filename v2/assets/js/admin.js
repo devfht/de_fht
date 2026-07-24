@@ -14,6 +14,10 @@
 
   const DRAFT_KEY = 'fht_admin_draft';
   const SESSION_KEY = 'fht_admin_session';
+  const TOKEN_KEY = 'fht_admin_gh_token';
+
+  /* Dépôt cible de la publication en un clic (modifier si le site déménage) */
+  const GH = { owner: 'devfht', repo: 'de_fht', branch: 'main', path: 'v2/contenu.js' };
 
   /* Prompt prêt à donner à une IA pour générer un contenu importable ici */
   const AI_PROMPT = `Tu prépares le fichier de contenu d'un site portfolio de builder / level designer Roblox.
@@ -115,6 +119,29 @@ MES INFOS (à compléter) :
   function ssGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
   function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { /* ignoré */ } }
 
+  /* Jeton GitHub : stocké uniquement dans ce navigateur, jamais dans le code */
+  function ghToken() { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
+  function setGhToken(v) {
+    try { v ? localStorage.setItem(TOKEN_KEY, v) : localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+  }
+  /* base64 sûr en UTF-8 (accents) */
+  function b64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    bytes.forEach(b => { bin += String.fromCharCode(b); });
+    return btoa(bin);
+  }
+  function ghApi(url, opts) {
+    opts = opts || {};
+    const headers = Object.assign({
+      'Authorization': 'Bearer ' + ghToken(),
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    }, opts.headers || {});
+    return fetch(url, Object.assign({}, opts, { headers }));
+  }
+  const GH_URL = () => `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}`;
+
   /* ---------- GATE ---------- */
   const gate = document.getElementById('gate');
   const app = document.getElementById('app');
@@ -146,7 +173,7 @@ MES INFOS (à compléter) :
   }
   function updatePublishState() {
     const el = $('publishState'); if (!el) return;
-    const btn = $('btnDownload');
+    const btn = $('btnPublish');
     if (needsPublish) {
       el.textContent = '● À publier';
       el.className = 'publish-chip pending';
@@ -170,6 +197,55 @@ MES INFOS (à compléter) :
     const t = $('toast'); t.textContent = msg; t.className = 'toast show ' + (type || '');
     setTimeout(() => { t.className = 'toast ' + (type || ''); }, 2600);
   }
+  function syncNav() {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.sec === activeSec));
+  }
+  function buildFileContent() {
+    const header = '/* ============================================================\n'
+      + '   contenu.js — genere par le backoffice\n'
+      + '   ============================================================ */\n';
+    return header + 'window.SITE_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
+  }
+
+  /* Publication directe dans le dépôt GitHub */
+  async function publishToGitHub() {
+    if (!ghToken()) {
+      activeSec = 'publication'; syncNav(); render();
+      toast('Ajoute d\'abord ton jeton GitHub', 'err');
+      return;
+    }
+    const btn = $('btnPublish'); const label = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Publication…';
+    try {
+      saveDraft();
+      // 1) sha du fichier existant (404 = fichier à créer)
+      let sha = null;
+      const get = await ghApi(GH_URL() + '?ref=' + GH.branch);
+      if (get.status === 200) { sha = (await get.json()).sha; }
+      else if (get.status === 401) throw new Error('jeton invalide ou expiré');
+      else if (get.status === 403) throw new Error('accès refusé (droits du jeton)');
+      else if (get.status !== 404) throw new Error('GitHub a répondu ' + get.status);
+      // 2) écriture du fichier
+      const body = { message: 'chore(contenu): mise a jour depuis le backoffice', content: b64(buildFileContent()), branch: GH.branch };
+      if (sha) body.sha = sha;
+      const put = await ghApi(GH_URL(), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!put.ok) {
+        const j = await put.json().catch(() => ({}));
+        throw new Error(j.message || ('GitHub a répondu ' + put.status));
+      }
+      needsPublish = false; updatePublishState();
+      toast('Publié — le site sera à jour dans ~1 min', 'ok');
+    } catch (e) {
+      toast('Échec : ' + e.message, 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = label;
+    }
+  }
+
   function setByPath(path, value) {
     const keys = path.split('.'); let o = data;
     for (let i = 0; i < keys.length - 1; i++) o = o[keys[i]];
@@ -218,8 +294,7 @@ MES INFOS (à compléter) :
     data = obj; ensureShape(data);
     needsPublish = true;
     saveDraft();
-    activeSec = 'identite';
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.sec === 'identite'));
+    activeSec = 'identite'; syncNav();
     render(); updatePublishState();
   }
 
@@ -266,6 +341,7 @@ MES INFOS (à compléter) :
     else if (activeSec === 'commissions') main.innerHTML = viewCommissions();
     else if (activeSec === 'footer') main.innerHTML = viewFooter();
     else if (activeSec === 'ia') main.innerHTML = viewIA();
+    else if (activeSec === 'publication') main.innerHTML = viewPublication();
   }
 
   /* ---------- VUES ---------- */
@@ -446,6 +522,43 @@ MES INFOS (à compléter) :
     `;
   }
 
+  function viewPublication() {
+    const has = !!ghToken();
+    return `
+      <h2 class="sec-title">Publication</h2>
+      <p class="sec-hint">Avec un jeton GitHub, le bouton « ⇧ Publier en ligne » met le site à jour tout seul.</p>
+
+      <div class="note">
+        <b>État :</b> ${has ? 'jeton enregistré — la publication en un clic est active.' : 'aucun jeton — la publication en un clic est désactivée.'}<br>
+        <b>Cible :</b> ${GH.owner}/${GH.repo} → ${GH.path} (branche ${GH.branch})
+      </div>
+
+      <h2 class="sec-title" style="font-size:1.1rem; margin-top:2rem;">Créer le jeton (une seule fois)</h2>
+      <div class="note">
+        1. Ouvre <b>github.com/settings/personal-access-tokens/new</b><br>
+        2. <b>Repository access</b> → Only select repositories → <b>${GH.owner}/${GH.repo}</b><br>
+        3. <b>Permissions</b> → Repository permissions → <b>Contents</b> → <b>Read and write</b><br>
+        4. Generate token, copie-le (il commence par <b>github_pat_</b>) et colle-le ci-dessous
+      </div>
+
+      <div class="field mono">
+        <label>Jeton GitHub <span class="opt">(stocké uniquement dans ce navigateur)</span></label>
+        <input type="password" id="ghToken" value="${esc(ghToken())}" placeholder="github_pat_...">
+      </div>
+      <div class="upload-row">
+        <button class="btn btn-primary" data-action="gh-save">Enregistrer</button>
+        <button class="btn" data-action="gh-test">Tester la connexion</button>
+        ${has ? '<button class="btn btn-danger" data-action="gh-clear">Supprimer le jeton</button>' : ''}
+      </div>
+
+      <div class="note warn" style="margin-top:1.75rem;">
+        Le jeton ne quitte jamais ton navigateur : il n'est ni dans le code, ni visible publiquement.
+        En revanche, quelqu'un ayant accès à ton ordinateur pourrait publier à ta place.
+        Tu peux le révoquer à tout moment depuis GitHub → Settings → Developer settings.
+      </div>
+    `;
+  }
+
   function itemTools(list, i, len) {
     return `<div class="item-tools">
       <button class="icon-btn" data-action="up" data-list="${list}" data-index="${i}" ${i === 0 ? 'disabled' : ''} title="Monter">↑</button>
@@ -518,6 +631,26 @@ MES INFOS (à compléter) :
       const url = prompt('Colle l\'URL de l\'image :');
       if (url && url.trim()) { const c = data.clips[+btn.dataset.index]; (c.images = c.images || []).push(url.trim()); markDirty(); render(); }
       return;
+    }
+
+    if (action === 'gh-save' || action === 'gh-test') {
+      const field = $('ghToken');
+      const t = (field && field.value.trim()) || '';
+      if (!t) { toast('Colle ton jeton d\'abord', 'err'); return; }
+      setGhToken(t);
+      if (action === 'gh-save') { render(); toast('Jeton enregistré', 'ok'); return; }
+      toast('Test en cours…');
+      ghApi(GH_URL() + '?ref=' + GH.branch).then(r => {
+        if (r.status === 200) toast('Connexion OK — tu peux publier', 'ok');
+        else if (r.status === 401) toast('Jeton invalide ou expiré', 'err');
+        else if (r.status === 403) toast('Droits insuffisants (Contents : Read and write)', 'err');
+        else if (r.status === 404) toast('Dépôt/fichier introuvable — vérifie l\'accès du jeton', 'err');
+        else toast('GitHub a répondu ' + r.status, 'err');
+      }).catch(() => toast('Erreur réseau', 'err'));
+      return;
+    }
+    if (action === 'gh-clear') {
+      setGhToken(''); render(); toast('Jeton supprimé', 'ok'); return;
     }
 
     if (action === 'ai-copy') {
@@ -692,12 +825,7 @@ MES INFOS (à compléter) :
 
   $('btnDownload').addEventListener('click', () => {
     saveDraft();
-    const header = '/* ============================================================\n'
-      + '   contenu.js — genere par le backoffice\n'
-      + '   Remplace ce fichier en ligne pour publier tes modifs.\n'
-      + '   ============================================================ */\n';
-    const body = 'window.SITE_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
-    const blob = new Blob([header + body], { type: 'text/javascript' });
+    const blob = new Blob([buildFileContent()], { type: 'text/javascript' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'contenu.js';
@@ -706,6 +834,8 @@ MES INFOS (à compléter) :
     needsPublish = false; updatePublishState();
     toast('contenu.js téléchargé — remets-le en ligne pour publier', 'ok');
   });
+
+  $('btnPublish').addEventListener('click', publishToGitHub);
 
   $('btnImport').addEventListener('click', () => $('importFile').click());
   $('importFile').addEventListener('change', (e) => {
