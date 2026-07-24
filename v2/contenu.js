@@ -1,9 +1,7 @@
 /* ============================================================
    contenu.js — LE CONTENU DU SITE
    ------------------------------------------------------------
-   C'est le SEUL fichier à modifier pour changer le site.
-   Utilise le backoffice (admin.html) pour l'éditer sans code,
-   puis remplace ce fichier en ligne par celui que tu télécharges.
+   Modifiable sans code via le backoffice (admin.html).
    ============================================================ */
 window.SITE_CONTENT = {
   "brand": "Fht",
@@ -20,19 +18,19 @@ window.SITE_CONTENT = {
     "discord": "de_fht",
     "roblox": "https://www.roblox.com/fr/users/1515603679/profile",
     "email": "mr.fht.studio@gmail.com",
-    "x": ""
+    "x": "https://x.com/de_fht"
   },
   "stats": [
     {
-      "name": "Builds",
-      "value": 10,
+      "name": "Commissions",
+      "value": 18,
       "suffix": "+",
       "type": "number"
     },
     {
       "name": "Visits",
-      "value": 700,
-      "suffix": "K+",
+      "value": 2.8,
+      "suffix": "M+",
       "type": "number"
     },
     {
@@ -42,8 +40,8 @@ window.SITE_CONTENT = {
       "type": "number"
     },
     {
-      "name": "Community",
-      "value": 200,
+      "name": "Followers",
+      "value": 140,
       "suffix": "+",
       "type": "number"
     }
@@ -53,41 +51,46 @@ window.SITE_CONTENT = {
       "name": "Street French",
       "icon": "model",
       "role": "Build & environnement",
-      "desc": "Pour le Street French V2 — plus de 700k visites totales.",
-      "visits": "700K+",
-      "image": "../FrenchStreet.jpg"
-    },
-    {
-      "name": "Prison RP FR",
-      "icon": "model",
-      "role": "Optimisation 3D",
-      "desc": "Projet de prison RP avec chat vocal. J'ai surtout travaillé sur l'optimisation.",
-      "visits": "",
-      "image": "../prisonRP.jpg"
+      "desc": "J'ai contribué à la v2 de Street Fench notamment sur la réalisation des bars des supporters",
+      "visits": "2M+",
+      "image": "../FrenchStreet.jpg",
+      "link": "https://www.roblox.com/fr/games/103218828242097/Street-French-Ultras-TOP1"
     },
     {
       "name": "Ultra Viragiste PSG",
       "icon": "model",
       "role": "Optimisation 3D",
       "desc": "J'ai seulement essayé d'optimiser une petite partie du jeu.",
-      "visits": "",
-      "image": "../Stade.jpg"
+      "visits": "400K+",
+      "image": "../Stade.jpg",
+      "link": "https://www.roblox.com/fr/games/106600814021883/Viragiste-Psg-Ultras-1AN"
+    },
+    {
+      "name": "Make a plane",
+      "icon": "model",
+      "role": "Mapping pour une Update",
+      "desc": "Petite commission sympathique, je n'ai pas les chiffres précis pour les visits donc je met ",
+      "visits": "400K+",
+      "image": "img/make-a-plane-cover.jpg",
+      "link": ""
+    },
+    {
+      "name": "Slap Out",
+      "icon": "model",
+      "role": "Builder",
+      "desc": "J'ai build tout le jeu, aujourd'hui il est en attente (recherche d'investisseur)",
+      "visits": "1K+",
+      "image": "img/slap-out-cover.jpg",
+      "link": "https://www.roblox.com/fr/games/105493420934714/Slap-Out"
     },
     {
       "name": "Eternel Studio The Labyrinth",
       "icon": "model",
       "role": "Optimisation & reprise",
-      "desc": "Je travaille sur l'optimisation de cette map, et je refais aussi certaines parties car le développeur précédent a fait des erreurs.",
+      "desc": "Je travail actuellement sur ce projet avec le studio afin de pouvoir le sortir le plus rapidement possible !",
       "visits": "",
-      "image": "../The.lbt.webp"
-    },
-    {
-      "name": "Some GUI",
-      "icon": "script",
-      "role": "GUI Design",
-      "desc": "Voici quelques GUIs que j'ai designés et créés moi-même.",
-      "visits": "",
-      "image": "../GUI.jpg"
+      "image": "../The.lbt.webp",
+      "link": "https://www.roblox.com/fr/games/134980261294011/Le-labyrinthe"
     },
     {
       "name": "Hit The Road",
@@ -95,7 +98,26 @@ window.SITE_CONTENT = {
       "role": "Asset & environnement",
       "desc": "J'ai fait ce petit asset pour un projet personnel à long terme.",
       "visits": "",
-      "image": "../hitroad.jpg"
+      "image": "../hitroad.jpg",
+      "link": ""
+    },
+    {
+      "name": "Lava Rush",
+      "icon": "model",
+      "role": "Builder",
+      "desc": "Le jeu est fermé pour le moment, j'ai fais tout le build",
+      "visits": "",
+      "image": "img/lava-rush-cover.jpg",
+      "link": ""
+    },
+    {
+      "name": "Prison RP FR",
+      "icon": "model",
+      "role": "Optimisation 3D",
+      "desc": "Projet de prison RP avec chat vocal. J'ai surtout travaillé sur l'optimisation.\nLe projet n'est jamais sorti : l'Owner n'a pas pu",
+      "visits": "",
+      "image": "../prisonRP.jpg",
+      "link": ""
     },
     {
       "name": "Test de recrutement Secours de France",
@@ -103,7 +125,35 @@ window.SITE_CONTENT = {
       "role": "Build",
       "desc": "J'ai construit ça pour le recrutement des Secours de France.",
       "visits": "",
-      "image": "../helpfrance.jpg"
+      "image": "../helpfrance.jpg",
+      "link": ""
+    },
+    {
+      "name": "Petite Île",
+      "icon": "model",
+      "role": "Build (collaboration)",
+      "desc": "J'ai fait cette petite île en collaboration avec un builder : nak0u0",
+      "visits": "",
+      "image": "../Smallisland.jpg",
+      "link": ""
+    },
+    {
+      "name": "Trade Game",
+      "icon": "model",
+      "role": "Builder",
+      "desc": "L'owner à disparu avec le jeu, donc j'ai pas beaucoup d'info à apporter...",
+      "visits": "",
+      "image": "img/trade-game-cover.jpg",
+      "link": ""
+    },
+    {
+      "name": "Some GUI",
+      "icon": "script",
+      "role": "GUI Design",
+      "desc": "Voici quelques GUIs que j'ai designés et créés moi-même.",
+      "visits": "",
+      "image": "../GUI.jpg",
+      "link": ""
     },
     {
       "name": "Hôpital Français",
@@ -111,15 +161,8 @@ window.SITE_CONTENT = {
       "role": "Build",
       "desc": "C'est les urgences ; un build simple sans intérieur, juste pour le fun.",
       "visits": "",
-      "image": "../hospital.jpg"
-    },
-    {
-      "name": "Petite Île",
-      "icon": "model",
-      "role": "Build (collaboration)",
-      "desc": "J'ai fait cette petite île en collaboration avec un builder.",
-      "visits": "",
-      "image": "../Smallisland.jpg"
+      "image": "../hospital.jpg",
+      "link": ""
     },
     {
       "name": "Petite map cache-cache",
@@ -127,7 +170,8 @@ window.SITE_CONTENT = {
       "role": "Build de map",
       "desc": "J'ai fait cette petite map il y a longtemps. Le client a arrêté la commande.",
       "visits": "",
-      "image": "../hide.jpg"
+      "image": "../hide.jpg",
+      "link": ""
     }
   ],
   "clips": [
@@ -148,6 +192,38 @@ window.SITE_CONTENT = {
       ]
     },
     {
+      "title": "Ultra Viragiste PSG",
+      "tags": [
+        "Optimisation",
+        "Stade"
+      ],
+      "images": [
+        "../PSG1.webp",
+        "../PSG2.webp",
+        "../PSG3.webp",
+        "../PSG4.webp",
+        "../PSG5.webp",
+        "../PSG6.webp",
+        "../PSG7.webp",
+        "../PSG8.webp"
+      ]
+    },
+    {
+      "title": "Slap Out",
+      "tags": [
+        "Builder"
+      ],
+      "images": [
+        "img/slap-out-1.jpg",
+        "img/slap-out-2.jpg",
+        "img/slap-out-3.jpg",
+        "img/slap-out-4.jpg",
+        "img/slap-out-5.jpg",
+        "img/slap-out-6.jpg",
+        "img/slap-out-7.jpg"
+      ]
+    },
+    {
       "title": "Hit The Road",
       "tags": [
         "Asset",
@@ -163,23 +239,6 @@ window.SITE_CONTENT = {
         "../hit7.webp",
         "../hit8.webp",
         "../hitroad.jpg"
-      ]
-    },
-    {
-      "title": "Ultra Viragiste PSG",
-      "tags": [
-        "Optimisation",
-        "Stade"
-      ],
-      "images": [
-        "../PSG1.webp",
-        "../PSG2.webp",
-        "../PSG3.webp",
-        "../PSG4.webp",
-        "../PSG5.webp",
-        "../PSG6.webp",
-        "../PSG7.webp",
-        "../PSG8.webp"
       ]
     },
     {
@@ -224,21 +283,57 @@ window.SITE_CONTENT = {
         "../gui2.webp",
         "../gui3.webp"
       ]
+    },
+    {
+      "title": "Le labyrinthe 🔦",
+      "tags": [
+        "Builder & Optimizer & Game Designer"
+      ],
+      "images": [
+        "img/le-labyrinthe-1.jpg",
+        "img/le-labyrinthe-2.jpg",
+        "img/le-labyrinthe-3.jpg",
+        "img/le-labyrinthe-4.jpg"
+      ]
+    },
+    {
+      "title": "Trade Game",
+      "tags": [
+        "Builder"
+      ],
+      "images": [
+        "img/trade-game-1.jpg",
+        "img/trade-game-2.jpg",
+        "img/trade-game-3.jpg",
+        "img/trade-game-4.jpg",
+        "img/trade-game-5.jpg"
+      ]
+    },
+    {
+      "title": "Temple d'Alligator ",
+      "tags": [
+        "Builder"
+      ],
+      "images": [
+        "img/temple-dalligator-1.jpg",
+        "img/temple-dalligator-2.jpg"
+      ]
     }
   ],
   "commissions": {
-    "heading": "Comment on travaille",
+    "heading": "Comment je fonctionne ",
     "paragraphs": [
-      "Map complète, optimisation d'un jeu existant ou interface : je prends le projet à l'échelle qui t'arrange.",
-      "J'ai travaillé pour Street French, Altas Production et Papy Studio. Je suis actuellement chez Eternel Studio."
+      "Je peux faire des maps complète, comme de simple modèles. Je peux également sous une autre forme venir opti une map",
+      "Sur la commission, je fais la commande, je suis payer puis j'envoie le modèle je peux autrement demander un acompte de 50% du prix total de la commission au début. Si la commande ne plait pas / veut être annuler je demande 40% du prix complet de la commission : je ne travail pas pour rien"
     ],
     "terms": [
       "Devis fixé avant de commencer",
-      "Optimisation incluse (parts, triangles, streaming)",
-      "Livraison en .rbxm prêt à insérer",
-      "Retours et ajustements après livraison",
+      "Optimisation incluse ou pas",
+      "Livraison de la commande suivant les possibilités.",
+      "Possibilité d'aider un peu après livraison de commande",
       "Contact direct sur Discord : de_fht"
-    ]
+    ],
+    "formspreeId": "YOUR_FORM_ID"
   },
   "footer": {
     "online": true,

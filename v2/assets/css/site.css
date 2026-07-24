@@ -429,6 +429,17 @@ header {
 .game-prop .k { color: var(--muted); }
 .game-prop .v { color: var(--text-2); }
 .game-prop .v em { color: var(--sel); font-style: normal; }
+.game-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--sel);
+  transition: color 0.2s ease;
+}
+.game-link:hover { color: var(--text); }
 
 /* === CLIPS === */
 .clips-grid {

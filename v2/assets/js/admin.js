@@ -50,7 +50,7 @@ window.SITE_CONTENT = {
     { "name": "Visits", "value": 300, "suffix": "M+", "type": "number" }
   ],
   "games": [
-    { "name": "Nom du build", "icon": "model", "role": "Build / Optimisation 3D / GUI Design", "desc": "une phrase", "visits": "700K+ ou vide", "image": "" }
+    { "name": "Nom du build", "icon": "model", "role": "Build / Optimisation 3D / GUI Design", "desc": "une phrase", "visits": "700K+ ou vide", "image": "", "link": "https://www.roblox.com/games/... ou vide" }
   ],
   "clips": [
     { "title": "Titre du clip", "tags": ["UI", "Gameplay"], "images": [] }
@@ -412,7 +412,7 @@ MES INFOS (à compléter) :
           <div class="field"><label>Ton rôle</label><input data-field="role" value="${esc(g.role)}"></div>
         </div>
         <div class="row2">
-          <div class="field"><label>Visites (ex. 45M)</label><input data-field="visits" value="${esc(g.visits)}"></div>
+          <div class="field"><label>Visites <span class="opt">(ex. 700K+, vide si inconnu)</span></label><input data-field="visits" value="${esc(g.visits)}"></div>
           <div class="field"><label>Icône</label>
             <select data-field="icon">
               ${iconOpt('model', g.icon, 'Modèle ▦')}
@@ -423,6 +423,7 @@ MES INFOS (à compléter) :
           </div>
         </div>
         <div class="field"><label>Description</label><textarea data-field="desc">${esc(g.desc)}</textarea></div>
+        <div class="field mono"><label>Lien du jeu <span class="opt">(Roblox — affiche « Ouvrir sur Roblox » sur la carte)</span></label><input data-field="link" value="${esc(g.link || '')}" placeholder="https://www.roblox.com/games/..."></div>
       </div>`).join('');
     return `
       <h2 class="sec-title">Jeux</h2>
@@ -802,7 +803,7 @@ MES INFOS (à compléter) :
 
   function addItem(list) {
     if (list === 'stats') data.stats.push({ name: '', value: 0, suffix: '', type: 'number' });
-    else if (list === 'games') data.games.push({ name: '', icon: 'model', role: '', desc: '', visits: '', image: '' });
+    else if (list === 'games') data.games.push({ name: '', icon: 'model', role: '', desc: '', visits: '', image: '', link: '' });
     else if (list === 'clips') data.clips.push({ title: '', tags: [], images: [] });
     markDirty(); render();
     // Met le nouvel élément en vue et place le curseur dans son premier champ

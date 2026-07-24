@@ -98,6 +98,7 @@
             <div class="game-prop"><span class="k">Role</span><span class="v">${esc(g.role)}</span></div>
             ${g.visits ? `<div class="game-prop"><span class="k">Visits</span><span class="v"><em>${esc(g.visits)}</em></span></div>` : ''}
           </div>
+          ${g.link ? `<a class="game-link" href="${esc(g.link)}" target="_blank" rel="noopener">Ouvrir sur Roblox ↗</a>` : ''}
         </div>
       </article>`;
   }).join('');
