@@ -124,13 +124,6 @@ MES INFOS (à compléter) :
   function setGhToken(v) {
     try { v ? localStorage.setItem(TOKEN_KEY, v) : localStorage.removeItem(TOKEN_KEY); } catch (e) {}
   }
-  /* base64 sûr en UTF-8 (accents) */
-  function b64(str) {
-    const bytes = new TextEncoder().encode(str);
-    let bin = '';
-    bytes.forEach(b => { bin += String.fromCharCode(b); });
-    return btoa(bin);
-  }
   function ghApi(url, opts) {
     opts = opts || {};
     const headers = Object.assign({
@@ -207,39 +200,130 @@ MES INFOS (à compléter) :
     return header + 'window.SITE_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
   }
 
-  /* Publication directe dans le dépôt GitHub */
+  /* ---------- Externalisation des images ----------
+     Une image collée dans le backoffice arrive en data:base64. La laisser
+     dans contenu.js rendrait le fichier énorme (et le site lent), donc on
+     l'envoie comme vrai fichier dans v2/img/ et on ne garde que le chemin. */
+  function shortHash(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 16777619) >>> 0; }
+    let g = 0x01000193;
+    for (let i = str.length - 1; i >= 0; i--) { g ^= str.charCodeAt(i); g = (g * 16777619) >>> 0; }
+    return ('0000000' + h.toString(16)).slice(-7) + ('0' + (g & 0xff).toString(16)).slice(-2);
+  }
+  function slugify(v) {
+    return String(v || 'img').normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^\w\s-]/g, '').trim().toLowerCase()
+      .replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'img';
+  }
+  const MIME_EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+
+  /* Repère les images intégrées sans modifier data : renvoie les fichiers à
+     envoyer et les remplacements à appliquer seulement si la publication réussit. */
+  function collectEmbeddedImages() {
+    const items = [], setters = [], byHash = new Map();
+    function take(uri, base) {
+      const m = /^data:([^;]+);base64,(.*)$/.exec(uri);
+      if (!m) return null;
+      const h = shortHash(m[2]);
+      if (byHash.has(h)) return byHash.get(h);            // même image = un seul fichier
+      const path = 'img/' + base + '-' + h + '.' + (MIME_EXT[m[1]] || 'jpg');
+      byHash.set(h, path);
+      items.push({ b64: m[2], path: path });
+      return path;
+    }
+    (data.games || []).forEach(g => {
+      if (g.image && g.image.indexOf('data:') === 0) {
+        const p = take(g.image, slugify(g.name) + '-cover');
+        if (p) setters.push(() => { g.image = p; });
+      }
+    });
+    (data.clips || []).forEach(cl => {
+      (cl.images || []).forEach((im, i) => {
+        if (im && im.indexOf('data:') === 0) {
+          const p = take(im, slugify(cl.title) + '-' + (i + 1));
+          if (p) setters.push(() => { cl.images[i] = p; });
+        }
+      });
+    });
+    return { items: items, setters: setters };
+  }
+
+  /* Publication : images + contenu.js dans un seul commit (rien de partiel) */
   async function publishToGitHub() {
     if (!ghToken()) {
       activeSec = 'publication'; syncNav(); render();
       toast('Ajoute d\'abord ton jeton GitHub', 'err');
       return;
     }
-    const btn = $('btnPublish'); const label = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Publication…';
+    const btn = $('btnPublish'), label = btn.textContent;
+    const api = `https://api.github.com/repos/${GH.owner}/${GH.repo}`;
+    const snapshot = JSON.stringify(data);
+    btn.disabled = true;
     try {
-      saveDraft();
-      // 1) sha du fichier existant (404 = fichier à créer)
-      let sha = null;
-      const get = await ghApi(GH_URL() + '?ref=' + GH.branch);
-      if (get.status === 200) { sha = (await get.json()).sha; }
-      else if (get.status === 401) throw new Error('jeton invalide ou expiré');
-      else if (get.status === 403) throw new Error('accès refusé (droits du jeton)');
-      else if (get.status !== 404) throw new Error('GitHub a répondu ' + get.status);
-      // 2) écriture du fichier
-      const body = { message: 'chore(contenu): mise a jour depuis le backoffice', content: b64(buildFileContent()), branch: GH.branch };
-      if (sha) body.sha = sha;
-      const put = await ghApi(GH_URL(), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      if (!put.ok) {
-        const j = await put.json().catch(() => ({}));
-        throw new Error(j.message || ('GitHub a répondu ' + put.status));
+      const found = collectEmbeddedImages();
+      found.setters.forEach(f => f());                    // data ne contient plus de base64
+      const fileText = buildFileContent();
+
+      btn.textContent = 'Lecture du dépôt…';
+      const refRes = await ghApi(`${api}/git/ref/heads/${GH.branch}`);
+      if (refRes.status === 401) throw new Error('jeton invalide ou expiré');
+      if (refRes.status === 403) throw new Error('droits insuffisants (Contents : Read and write)');
+      if (refRes.status === 404) throw new Error('dépôt ou branche introuvable');
+      if (!refRes.ok) throw new Error('GitHub a répondu ' + refRes.status);
+      const baseCommit = (await refRes.json()).object.sha;
+      const cRes = await ghApi(`${api}/git/commits/${baseCommit}`);
+      if (!cRes.ok) throw new Error('lecture du dernier commit impossible');
+      const baseTree = (await cRes.json()).tree.sha;
+
+      // 1) une entrée d'arbre par image
+      const tree = [];
+      for (let i = 0; i < found.items.length; i++) {
+        btn.textContent = `Image ${i + 1}/${found.items.length}…`;
+        const bRes = await ghApi(`${api}/git/blobs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: found.items[i].b64, encoding: 'base64' })
+        });
+        if (!bRes.ok) throw new Error(`envoi de l'image ${i + 1} impossible`);
+        tree.push({ path: 'v2/' + found.items[i].path, mode: '100644', type: 'blob', sha: (await bRes.json()).sha });
       }
-      needsPublish = false; updatePublishState();
-      toast('Publié — le site sera à jour dans ~1 min', 'ok');
+      // 2) le contenu du site
+      tree.push({ path: GH.path, mode: '100644', type: 'blob', content: fileText });
+
+      btn.textContent = 'Publication…';
+      const tRes = await ghApi(`${api}/git/trees`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base_tree: baseTree, tree: tree })
+      });
+      if (!tRes.ok) throw new Error('préparation du commit impossible');
+      const newTree = (await tRes.json()).sha;
+
+      const n = found.items.length;
+      const msg = 'chore(contenu): mise a jour depuis le backoffice'
+        + (n ? ` (+${n} image${n > 1 ? 's' : ''})` : '');
+      const nRes = await ghApi(`${api}/git/commits`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, tree: newTree, parents: [baseCommit] })
+      });
+      if (!nRes.ok) throw new Error('création du commit impossible');
+      const newCommit = (await nRes.json()).sha;
+
+      const uRes = await ghApi(`${api}/git/refs/heads/${GH.branch}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sha: newCommit })
+      });
+      if (!uRes.ok) {
+        const j = await uRes.json().catch(() => ({}));
+        throw new Error(j.message || 'mise à jour de la branche impossible');
+      }
+
+      needsPublish = false;
+      saveDraft(); render(); updatePublishState();
+      toast(n ? `Publié — ${n} image(s) envoyée(s), site à jour dans ~1 min`
+              : 'Publié — le site sera à jour dans ~1 min', 'ok');
     } catch (e) {
+      data = JSON.parse(snapshot);                        // rien n'a été publié : on restaure
       toast('Échec : ' + e.message, 'err');
     } finally {
       btn.disabled = false; btn.textContent = label;
@@ -423,7 +507,7 @@ MES INFOS (à compléter) :
           </div>
         </div>
         <div class="field"><label>Description</label><textarea data-field="desc">${esc(g.desc)}</textarea></div>
-        <div class="field mono"><label>Lien du jeu <span class="opt">(Roblox — affiche « Ouvrir sur Roblox » sur la carte)</span></label><input data-field="link" value="${esc(g.link || '')}" placeholder="https://www.roblox.com/games/..."></div>
+        <div class="field mono"><label>🔗 Lien du jeu Roblox <span class="opt">— colle ICI l'adresse de la page du jeu (pas dans les images)</span></label><input data-field="link" value="${esc(g.link || '')}" placeholder="https://www.roblox.com/games/..."></div>
       </div>`).join('');
     return `
       <h2 class="sec-title">Jeux</h2>
@@ -457,6 +541,7 @@ MES INFOS (à compléter) :
     return `
       <h2 class="sec-title">Clips</h2>
       <p class="sec-hint">Galeries d'images ouvertes en plein écran. Glisse plusieurs images d'un coup — elles sont compressées automatiquement.</p>
+      <div class="note">Ici, uniquement des <b>images</b>. Pour renvoyer vers un jeu jouable, utilise le champ <b>Lien du jeu Roblox</b> dans la section <b>Builds</b>.</div>
       ${items}
       <button class="add-btn" data-action="add" data-list="clips">+ Ajouter un clip</button>`;
   }
@@ -629,8 +714,19 @@ MES INFOS (à compléter) :
       data.clips[+btn.dataset.index].images.splice(+btn.dataset.img, 1); markDirty(); render(); return;
     }
     if (action === 'clip-img-url') {
-      const url = prompt('Colle l\'URL de l\'image :');
-      if (url && url.trim()) { const c = data.clips[+btn.dataset.index]; (c.images = c.images || []).push(url.trim()); markDirty(); render(); }
+      const url = (prompt('Colle l\'URL de l\'image (elle doit finir par .jpg, .png ou .webp) :') || '').trim();
+      if (!url) return;
+      // Une page de jeu Roblox n'est pas une image : elle va dans « Lien du jeu » d'un build
+      if (/roblox\.com\/(fr\/)?games\//i.test(url)) {
+        toast('Ceci est un lien de jeu, pas une image → mets-le dans « Lien du jeu », section Builds', 'err');
+        return;
+      }
+      if (!/\.(jpe?g|png|webp|gif|avif)(\?|#|$)/i.test(url)) {
+        if (!confirm('Cette adresse ne ressemble pas à un fichier image.\n\nL\'ajouter quand même ?')) return;
+      }
+      const c = data.clips[+btn.dataset.index];
+      (c.images = c.images || []).push(url);
+      markDirty(); render();
       return;
     }
 
