@@ -239,6 +239,10 @@ MES INFOS (à compléter) :
       }
     });
     (data.clips || []).forEach(cl => {
+      if (cl.thumb && cl.thumb.indexOf('data:') === 0) {
+        const p = take(cl.thumb, slugify(cl.title) + '-thumb');
+        if (p) setters.push(() => { cl.thumb = p; });
+      }
       (cl.images || []).forEach((im, i) => {
         if (im && im.indexOf('data:') === 0) {
           const p = take(im, slugify(cl.title) + '-' + (i + 1));
@@ -247,6 +251,21 @@ MES INFOS (à compléter) :
       });
     });
     return { items: items, setters: setters };
+  }
+
+  /* Renvoie index.html avec un nouveau numéro de version sur contenu.js,
+     ou null s'il n'y a rien à changer (échec non bloquant pour la publication). */
+  async function bumpedIndexHtml(api) {
+    try {
+      const r = await ghApi(`${api}/contents/v2/index.html?ref=${GH.branch}`);
+      if (!r.ok) return null;
+      const bin = atob((await r.json()).content.replace(/\s/g, ''));
+      const bytes = Uint8Array.from(bin, ch => ch.charCodeAt(0));
+      const html = new TextDecoder('utf-8').decode(bytes);
+      const stamp = String(Date.now()).slice(-8);
+      const next = html.replace(/(src=")contenu\.js(\?v=[^"]*)?(")/, '$1contenu.js?v=' + stamp + '$3');
+      return next === html ? null : next;
+    } catch (e) { return null; }
   }
 
   /* Publication : images + contenu.js dans un seul commit (rien de partiel) */
@@ -290,6 +309,11 @@ MES INFOS (à compléter) :
       }
       // 2) le contenu du site
       tree.push({ path: GH.path, mode: '100644', type: 'blob', content: fileText });
+
+      // 3) GitHub met contenu.js en cache 10 min : on change le numéro de version
+      //    dans index.html pour que les visiteurs voient la mise à jour tout de suite
+      const freshIndex = await bumpedIndexHtml(api);
+      if (freshIndex) tree.push({ path: 'v2/index.html', mode: '100644', type: 'blob', content: freshIndex });
 
       btn.textContent = 'Publication…';
       const tRes = await ghApi(`${api}/git/trees`, {
@@ -383,7 +407,7 @@ MES INFOS (à compléter) :
   }
 
   /* ---------- IMAGE UPLOAD (compression) ---------- */
-  function compressImage(file, maxW) {
+  function compressImage(file, maxW, quality) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -394,7 +418,7 @@ MES INFOS (à compléter) :
           const canvas = document.createElement('canvas');
           canvas.width = w; canvas.height = hh;
           canvas.getContext('2d').drawImage(img, 0, 0, w, hh);
-          resolve(canvas.toDataURL('image/jpeg', 0.82));
+          resolve(canvas.toDataURL('image/jpeg', quality || 0.82));
         };
         img.onerror = reject;
         img.src = reader.result;
@@ -773,16 +797,26 @@ MES INFOS (à compléter) :
     const action = el.dataset.action;
     try {
       if (action === 'cover') {
-        const url = await compressImage(el.files[0], 1400);
-        data.games[+el.dataset.index].image = url; markDirty(); render();
-      } else if (action === 'clip-imgs') {
-        const c = data.clips[+el.dataset.index]; c.images = c.images || [];
-        for (const f of el.files) c.images.push(await compressImage(f, 1600));
+        // une couverture n'est jamais agrandie : 900 px suffisent
+        data.games[+el.dataset.index].image = await compressImage(el.files[0], 900, 0.8);
         markDirty(); render();
+      } else if (action === 'clip-imgs') {
+        await addClipImages(+el.dataset.index, [].slice.call(el.files));
         toast(el.files.length + ' image(s) ajoutée(s)', 'ok');
       }
     } catch (err) { toast('Image illisible', 'err'); }
   });
+
+  /* Ajoute des images à une galerie et fabrique la vignette de la carte.
+     La vignette évite de servir une image de 1400 px dans une carte de 380 px. */
+  async function addClipImages(idx, files) {
+    const c = data.clips[idx];
+    c.images = c.images || [];
+    const wasEmpty = c.images.length === 0;
+    for (const f of files) c.images.push(await compressImage(f, 1400));
+    if (wasEmpty && files[0]) c.thumb = await compressImage(files[0], 700, 0.72);
+    markDirty(); render();
+  }
 
   /* ---------- DRAG & DROP : images + réordonnancement ---------- */
   let dragCtx = null; // { list, from } pendant un réordonnancement
@@ -841,17 +875,16 @@ MES INFOS (à compléter) :
       if (cover) {
         e.preventDefault(); clearDragMarks();
         if (!imgs.length) { toast('Ce fichier n\'est pas une image', 'err'); return; }
-        try { data.games[+cover.dataset.dropCover].image = await compressImage(imgs[0], 1400); markDirty(); render(); }
+        try { data.games[+cover.dataset.dropCover].image = await compressImage(imgs[0], 900, 0.8); markDirty(); render(); }
         catch (_) { toast('Image illisible', 'err'); }
         return;
       }
       if (clipz) {
         e.preventDefault(); clearDragMarks();
         if (!imgs.length) { toast('Aucune image dans le dépôt', 'err'); return; }
-        const c = data.clips[+clipz.dataset.dropClip]; c.images = c.images || [];
         try {
-          for (const f of imgs) c.images.push(await compressImage(f, 1600));
-          markDirty(); render(); toast(imgs.length + ' image(s) ajoutée(s)', 'ok');
+          await addClipImages(+clipz.dataset.dropClip, imgs);
+          toast(imgs.length + ' image(s) ajoutée(s)', 'ok');
         } catch (_) { toast('Image illisible', 'err'); }
         return;
       }

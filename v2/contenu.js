@@ -171,7 +171,8 @@ window.SITE_CONTENT = {
         "../Street5.webp",
         "../Street6.webp",
         "../Street7.webp"
-      ]
+      ],
+      "thumb": "img/thumb/street-french.jpg"
     },
     {
       "title": "Ultra Viragiste PSG",
@@ -188,7 +189,8 @@ window.SITE_CONTENT = {
         "../PSG6.webp",
         "../PSG7.webp",
         "../PSG8.webp"
-      ]
+      ],
+      "thumb": "img/thumb/ultra-viragiste-psg.jpg"
     },
     {
       "title": "Slap Out",
@@ -203,7 +205,8 @@ window.SITE_CONTENT = {
         "img/slap-out-5-85b5e370.jpg",
         "img/slap-out-cover-bacd625c.jpg",
         "img/slap-out-7-8aafd6e0.jpg"
-      ]
+      ],
+      "thumb": "img/thumb/slap-out.jpg"
     },
     {
       "title": "Hit The Road",
@@ -221,7 +224,8 @@ window.SITE_CONTENT = {
         "../hit7.webp",
         "../hit8.webp",
         "../hitroad.jpg"
-      ]
+      ],
+      "thumb": "img/thumb/hit-the-road.jpg"
     },
     {
       "title": "Prison RP FR",
@@ -237,7 +241,8 @@ window.SITE_CONTENT = {
         "../prisonRP5.jpg",
         "../prisonRP6.jpg",
         "../prisonRP7.jpg"
-      ]
+      ],
+      "thumb": "img/thumb/prison-rp-fr.jpg"
     },
     {
       "title": "Test de recrutement Secours de France",
@@ -252,7 +257,8 @@ window.SITE_CONTENT = {
         "../hlp4.webp",
         "../hlp5.webp",
         "../hlp6.webp"
-      ]
+      ],
+      "thumb": "img/thumb/test-de-recrutement-secours-de-france.jpg"
     },
     {
       "title": "Some GUI",
@@ -264,7 +270,8 @@ window.SITE_CONTENT = {
         "../gui1.webp",
         "../gui2.webp",
         "../gui3.webp"
-      ]
+      ],
+      "thumb": "img/thumb/some-gui.jpg"
     },
     {
       "title": "Le labyrinthe 🔦",
@@ -276,7 +283,8 @@ window.SITE_CONTENT = {
         "img/le-labyrinthe-2-28f01ac0.jpg",
         "img/le-labyrinthe-3-9b6b6364.jpg",
         "img/le-labyrinthe-4-6aa927f0.jpg"
-      ]
+      ],
+      "thumb": "img/thumb/le-labyrinthe.jpg"
     },
     {
       "title": "Trade Game",
@@ -289,7 +297,8 @@ window.SITE_CONTENT = {
         "img/trade-game-3-e14ce1b2.jpg",
         "img/trade-game-4-b62904bf.jpg",
         "img/trade-game-5-39055081.jpg"
-      ]
+      ],
+      "thumb": "img/thumb/trade-game.jpg"
     },
     {
       "title": "Temple d'Alligator ",
@@ -299,7 +308,8 @@ window.SITE_CONTENT = {
       "images": [
         "img/temple-dalligator-1-6d25efb4.jpg",
         "img/temple-dalligator-2-2a519a08.jpg"
-      ]
+      ],
+      "thumb": "img/thumb/temple-dalligator.jpg"
     },
     {
       "title": "Commission Planet Game",
@@ -311,7 +321,8 @@ window.SITE_CONTENT = {
         "img/commission-planet-game-2-b75828c4.jpg",
         "img/commission-planet-game-3-4bb480a3.jpg",
         "img/commission-planet-game-4-23d1e64a.jpg"
-      ]
+      ],
+      "thumb": "img/thumb/commission-planet-game.jpg"
     }
   ],
   "commissions": {

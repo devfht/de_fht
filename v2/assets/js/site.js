@@ -106,18 +106,20 @@
   /* ---------- CLIPS ---------- */
   const clipsGrid = $('clipsGrid');
   const allImages = [];
-  (content.clips || []).forEach((clip, i) => {
+  let shownClips = 0;
+  (content.clips || []).forEach((clip) => {
     const imgs = clip.images || [];
     if (!imgs.length) return;
     const startIdx = allImages.length;
     const card = document.createElement('article');
-    card.className = 'clip reveal' + (i === 0 ? ' clip-wide' : '');
+    card.className = 'clip reveal' + (shownClips === 0 ? ' clip-wide' : '');
+    shownClips++;
     card.tabIndex = 0;
     card.setAttribute('role', 'button');
     card.setAttribute('aria-label', 'Ouvrir ' + (clip.title || 'clip'));
     card.innerHTML = `
       <div class="clip-preview">
-        <img src="${esc(imgs[0])}" alt="${esc(clip.title)}" loading="lazy">
+        <img src="${esc(clip.thumb || imgs[0])}" alt="${esc(clip.title)}" loading="lazy">
         <span class="clip-count">${imgs.length} img</span>
       </div>
       <div class="clip-body">
@@ -178,6 +180,15 @@
     if (e.key === 'Escape') closeLightbox();
     if (e.key === 'ArrowLeft') lbPrev.click();
     if (e.key === 'ArrowRight') lbNext.click();
+    // garde le clavier à l'intérieur du dialogue tant qu'il est ouvert
+    if (e.key === 'Tab') {
+      const focusables = [lbClose, lbPrev, lbNext].filter(el => el.offsetParent !== null);
+      if (!focusables.length) return;
+      const first = focusables[0], last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !lb.contains(active))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (active === last || !lb.contains(active))) { e.preventDefault(); first.focus(); }
+    }
   });
 
   /* ---------- STAT COUNT-UP ---------- */
@@ -185,12 +196,14 @@
     document.querySelectorAll('.prop-value[data-target]').forEach(el => {
       const target = parseFloat(el.dataset.target) || 0;
       const suffix = el.dataset.suffix || '';
+      // même nombre de décimales que la cible, sinon 2.8 s'anime jusqu'à 3 puis saute
+      const dec = (String(el.dataset.target).split('.')[1] || '').length;
       if (reduceMotion) { el.textContent = target + suffix; return; }
       const dur = 1400, t0 = performance.now();
       function step(now) {
         const p = Math.min((now - t0) / dur, 1);
         const eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = Math.round(eased * target) + suffix;
+        el.textContent = (eased * target).toFixed(dec) + suffix;
         if (p < 1) requestAnimationFrame(step);
         else el.textContent = target + suffix;
       }
